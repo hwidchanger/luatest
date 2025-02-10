@@ -1,0 +1,2 @@
+local ui_keybox = gui.Keybox(gui.Reference("MISC", "Movement", "Jump"), "msc_movement_edge", "Longjump Key", 0)
+local ui_keybox1 = gui.Keybox(gui.Reference("MISC", "Movement", "Jump"), "msc_movement_edge1", "Minijump Key", 0)
