@@ -523,4 +523,37 @@ callbacks.Register("Draw", function()
             offset = offset + Th + 8
         end
     end
-end)
+end)
+
+local my_callback_ref = nil
+local another_callback_ref = nil
+local my_table = {} -- Example resource
+
+local function MyCallback()
+    print("MyCallback is running!")
+end
+
+local function AnotherCallback()
+    print("AnotherCallback is running!")
+end
+
+local function RegisterCallbacks()
+    my_callback_ref = callbacks.Register("CreateMove", MyCallback)
+    another_callback_ref = callbacks.Register("FrameStageNotify", AnotherCallback)
+    
+    return {
+        {name = "CreateMove", reference = my_callback_ref},
+        {name = "FrameStageNotify", reference = another_callback_ref}
+    }
+end
+
+local function Cleanup()
+    print("Cleanup function called in message2.lua")
+    -- Отмена таймеров, очистка таблиц и т.д.
+    my_table = nil -- Release the table
+end
+
+return {
+    RegisterCallbacks = RegisterCallbacks,
+    Cleanup = Cleanup
+}
