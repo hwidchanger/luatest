@@ -535,11 +535,15 @@ local function RegisterCallbacks()
     end
 
     local function Cleanup()
-        active = {} -- Clear the table to release references
+        active = {}
         lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = nil, nil, nil, nil -- release reference
         my_draw_callback_ref = nil
+		
 
-        print("Cleanupz called in message2.lua")
+        print("Cleanup1 called in message2.lua")
+		spec_check = nil
+		spec_color = nil
+		fontvzkill = draw.CreateFont("Tahoma", 0, 5000)
     end
 
     return {
