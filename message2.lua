@@ -1,7 +1,3 @@
-local spec_check = gui.Checkbox(gui.Reference("MISC", "General", "Extra"), "speclist", "Enable Spectatorlist", true)
-local spec_color = gui.ColorPicker(gui.Reference("MISC", "General", "Extra"), "spec_color", "Spectatorlist color", 255, 255, 255, 255)
-local speclist_on = true
-
 do
     local table_concat = table.concat
     local debug_getregistry = debug.getregistry
