@@ -455,10 +455,6 @@ local fontvzkill = draw.CreateFont("Tahoma", 11, 5000)
 local my_draw_callback_ref = nil
 local active = {}
 
-return function(gui, spec_check, spec_color, ui_check77)
-    local lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2
-end
-
 local function DrawSpectatorList()
     if not speclist_on then return end
 	localplayer_index = client.GetLocalPlayerIndex()
