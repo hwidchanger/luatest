@@ -1,3 +1,7 @@
+local ref_rage = gui.Reference("MISC")
+
+watermark_tab = gui.Tab(ref_rage, "wat_tab", "Watermark")
+
 gr16 = gui.Groupbox(watermark_tab, "Custom Spectatorlists", 15, 345, 310, 100);
 
 local spec_check = gui.Checkbox(gr16, "speclist", "Enable Spectatorlist", true)
@@ -400,6 +404,9 @@ new_class "CGameEntitySystem" {
 local CGameEntitySystem = ffi.cast("CGameEntitySystem**", ffi.cast("uintptr_t", create_interface("engine2.dll", "GameResourceServiceClientV001")) + 0x58)[0]
 
 local function get_spectating_players()
+	localplayer_index = client.GetLocalPlayerIndex()
+	player_name = client.GetPlayerNameByIndex(localplayer_index)
+	if not player_name then return end
     local_pawn = entities.GetLocalPawn()
     if not local_pawn then return {}, 0 end
     local_controller_index = local_pawn:GetPropEntity "m_hController":GetIndex()
@@ -452,6 +459,10 @@ end
 local fontvzkill = draw.CreateFont("Tahoma", 11, 5000)
 
 callbacks.Register("Draw", function()
+	localplayer_index = client.GetLocalPlayerIndex()
+	player_name = client.GetPlayerNameByIndex(localplayer_index)
+	if not player_name then return end
+
 	if not spec_check:GetValue() then return end
 
     active = {}
