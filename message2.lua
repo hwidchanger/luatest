@@ -458,20 +458,46 @@ end
 
 local fontvzkill = draw.CreateFont("Tahoma", 11, 5000)
 
-callbacks.Register("Draw", function()
-	localplayer_index = client.GetLocalPlayerIndex()
-	player_name = client.GetPlayerNameByIndex(localplayer_index)
-	if not player_name then return end
+local my_draw_callback_ref = nil
+local active = {}
+local lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2
 
-	if not spec_check:GetValue() then return end
+local function get_spectating_players()
+    local spectators = {}
+    local player = client.GetLocalPlayerIndex()
 
-    active = {}
+    for i = 1, globals.MaxClients() do
+        local target = entities.GetByIndex(i)
+        if not target then continue end
+
+        local target_index = target:GetIndex()
+
+        if not target:IsAlive() then
+            local observer_target = target:GetObserverTarget()
+            if observer_target then
+                local observer_target_index = observer_target:GetIndex()
+                if not spectators[observer_target_index] then
+                    spectators[observer_target_index] = {}
+                end
+
+                table.insert(spectators[observer_target_index], target_index)
+            end
+        end
+    end
+
+    return spectators, player
+end
+
+local function DrawSpectatorList()
+    localplayer_index = client.GetLocalPlayerIndex()
+    player_name = client.GetPlayerNameByIndex(localplayer_index)
+    if not player_name then return end
+
+    --if not spec_check:GetValue() then return end --Убрал чтение значения, т.к. не знаем откуда оно берется
 
     spectators, player = get_spectating_players()
     screen_width, screen_height = draw.GetScreenSize()
     maxplayers = globals.MaxClients()
-
-	lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
 
     frametime = globals.FrameTime()
     for i = 1, maxplayers do
@@ -507,10 +533,10 @@ callbacks.Register("Draw", function()
 
         local ent = entities.GetByIndex(i)
         if ent and value.alpha > 0 then
-			localplayer_index = client.GetLocalPlayerIndex()
-			player_name = client.GetPlayerNameByIndex(localplayer_index)
+            localplayer_index = client.GetLocalPlayerIndex()
+            player_name = client.GetPlayerNameByIndex(localplayer_index)
             name = ent:GetPropString "m_iszPlayerName"
-			speclist_text = name .. " >> " .. player_name
+            speclist_text = name .. " >> " .. player_name
 
             Tw, Th = draw.GetTextSize(speclist_text)
             textw = Tw
@@ -523,34 +549,20 @@ callbacks.Register("Draw", function()
             offset = offset + Th + 8
         end
     end
-end)
-
-local my_callback_ref = nil
-local another_callback_ref = nil
-local my_table = {} -- Example resource
-
-local function MyCallback()
-    print("MyCallback is running!")
-end
-
-local function AnotherCallback()
-    print("AnotherCallback is running!")
 end
 
 local function RegisterCallbacks()
-    my_callback_ref = callbacks.Register("CreateMove", MyCallback)
-    another_callback_ref = callbacks.Register("FrameStageNotify", AnotherCallback)
-    
+    my_draw_callback_ref = callbacks.Register("Draw", DrawSpectatorList)
     return {
-        {name = "CreateMove", reference = my_callback_ref},
-        {name = "FrameStageNotify", reference = another_callback_ref}
+        { name = "Draw", reference = my_draw_callback_ref }
     }
 end
 
 local function Cleanup()
+    active = {} -- Clear the table to release references
+    lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = nil, nil, nil, nil -- release reference
+
     print("Cleanup function called in message2.lua")
-    -- Отмена таймеров, очистка таблиц и т.д.
-    my_table = nil -- Release the table
 end
 
 return {
