@@ -539,7 +539,7 @@ local function RegisterCallbacks()
         lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = nil, nil, nil, nil -- release reference
         my_draw_callback_ref = nil
 
-        print("Cleanup function called in message2.lua")
+        print("Cleanupz called in message2.lua")
     end
 
     return {
