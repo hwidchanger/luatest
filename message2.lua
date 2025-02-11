@@ -1,5 +1,3 @@
-local spec_check = gui.Checkbox(gui.Reference("MISC", "General", "Extra"), "speclist", "Enable Spectatorlist", true)
-local spec_color = gui.ColorPicker(gui.Reference("MISC", "General", "Extra"), "spec_color", "Spectatorlist color", 255, 255, 255, 255)
 local speclist_on = true
 
 do
@@ -472,7 +470,7 @@ local function DrawSpectatorList()
 	lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
 
     offset2 = 0
-    if ui_check77:GetValue() and watermark_x:GetValue() >= 1780 and watermark_y:GetValue() <= 30 then
+    if ui_check77:GetValue() then
         offset2 = 20
     else
         offset2 = 0
