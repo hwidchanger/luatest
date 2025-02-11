@@ -1,6 +1,6 @@
-local spec_check = gui.Checkbox(gui.Reference("MISC", "Movement", "Jump"), "speclist", "Enable Spectatorlist", true)
-local spec_color = gui.ColorPicker(gui.Reference("MISC", "Movement", "Jump"), "spec_color", "Spectatorlist color", 255, 255, 255, 255)
-speclist_on = true
+local spec_check = gui.Checkbox(gui.Reference("MISC", "General", "Extra"), "speclist", "Enable Spectatorlist", true)
+local spec_color = gui.ColorPicker(gui.Reference("MISC", "General", "Extra"), "spec_color", "Spectatorlist color", 255, 255, 255, 255)
+local speclist_on = true
 
 do
     local table_concat = table.concat
@@ -537,7 +537,6 @@ local function RegisterCallbacks()
 		
 
         print("Cleanup1 called in message2.lua")
-		watermark_tab:SetInvisible(true)
 		spec_check:SetInvisible(true)
 		spec_color:SetInvisible(true)
         speclist_on = false
