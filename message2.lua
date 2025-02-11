@@ -455,6 +455,10 @@ local fontvzkill = draw.CreateFont("Tahoma", 11, 5000)
 local my_draw_callback_ref = nil
 local active = {}
 
+return function(gui, spec_check, spec_color, ui_check77)
+    local lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2
+end
+
 local function DrawSpectatorList()
     if not speclist_on then return end
 	localplayer_index = client.GetLocalPlayerIndex()
@@ -470,6 +474,13 @@ local function DrawSpectatorList()
     maxplayers = globals.MaxClients()
 
 	lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
+
+    offset2 = 0
+    if ui_check77:GetValue() then
+        offset2 = 50
+    else
+        offset2 = 0
+    end
 
     frametime = globals.FrameTime()
     for i = 1, maxplayers do
@@ -513,7 +524,7 @@ local function DrawSpectatorList()
             Tw, Th = draw.GetTextSize(speclist_text)
             textw = Tw
 
-            x, y = screen_width - textw - 10, 10 + offset
+            x, y = screen_width - textw - 10, 10 + offset + offset2
 
             draw.Color(lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2)
             draw.TextShadow(screen_width - textw - 10, y, speclist_text)
@@ -547,4 +558,3 @@ local function RegisterCallbacks()
         RegisterCallbacks = RegisterCallbacks,
         Cleanup = Cleanup
     }
-
