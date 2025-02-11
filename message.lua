@@ -445,4 +445,3 @@ local function get_spectating_players()
 end
 
 local fontvzkill = draw.CreateFont("Tahoma", 11, 5000)
-end)
