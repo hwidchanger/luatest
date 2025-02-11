@@ -528,20 +528,22 @@ local function DrawSpectatorList()
 end
 
 local function RegisterCallbacks()
-    my_draw_callback_ref = callbacks.Register("Draw", DrawSpectatorList)
+        my_draw_callback_ref = callbacks.Register("Draw", DrawSpectatorList)
+        return {
+            { name = "Draw", reference = my_draw_callback_ref }
+        }
+    end
+
+    local function Cleanup()
+        active = {} -- Clear the table to release references
+        lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = nil, nil, nil, nil -- release reference
+        my_draw_callback_ref = nil
+
+        print("Cleanup function called in message2.lua")
+    end
+
     return {
-        { name = "Draw", reference = my_draw_callback_ref }
+        RegisterCallbacks = RegisterCallbacks,
+        Cleanup = Cleanup
     }
-end
 
-local function Cleanup()
-    active = {} -- Clear the table to release references
-    lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = nil, nil, nil, nil -- release reference
-
-    print("Cleanup function called in message2.lua")
-end
-
-return {
-    RegisterCallbacks = RegisterCallbacks,
-    Cleanup = Cleanup
-}
