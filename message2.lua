@@ -1,3 +1,8 @@
+gr16 = gui.Groupbox(watermark_tab, "Custom Spectatorlists", 15, 345, 310, 100);
+
+local spec_check = gui.Checkbox(gr16, "speclist", "Enable Spectatorlist", true)
+local spec_color = gui.ColorPicker(gr16, "spec_color", "Spectatorlist color", 255, 255, 255, 255)
+
 do
     local table_concat = table.concat
     local debug_getregistry = debug.getregistry
