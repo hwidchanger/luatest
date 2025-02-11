@@ -541,8 +541,9 @@ local function RegisterCallbacks()
 		
 
         print("Cleanup1 called in message2.lua")
-		spec_check = nil
-		spec_color = nil
+		watermark_tab:SetInvisible(true)
+		spec_check:SetInvisible(true)
+		spec_color:SetInvisible(true)
 		fontvzkill = draw.CreateFont("Tahoma", 0, 5000)
     end
 
