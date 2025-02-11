@@ -472,8 +472,8 @@ local function DrawSpectatorList()
 	lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
 
     offset2 = 0
-    if ui_check77:GetValue() then
-        offset2 = 50
+    if ui_check77:GetValue() and watermark_x:GetValue() > 1780 and watermark_y:GetValue() < 30 then
+        offset2 = 20
     else
         offset2 = 0
     end
