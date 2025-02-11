@@ -1,11 +1,6 @@
-local ref_rage = gui.Reference("MISC")
-
-watermark_tab = gui.Tab(ref_rage, "wat_tab", "Watermark")
-
-gr16 = gui.Groupbox(watermark_tab, "Custom Spectatorlists", 15, 345, 310, 100);
-
-local spec_check = gui.Checkbox(gr16, "speclist", "Enable Spectatorlist", true)
-local spec_color = gui.ColorPicker(gr16, "spec_color", "Spectatorlist color", 255, 255, 255, 255)
+local spec_check = gui.Checkbox(gui.Reference("MISC", "Movement", "Jump"), "speclist", "Enable Spectatorlist", true)
+local spec_color = gui.ColorPicker(gui.Reference("MISC", "Movement", "Jump"), "spec_color", "Spectatorlist color", 255, 255, 255, 255)
+speclist_on = true
 
 do
     local table_concat = table.concat
@@ -461,6 +456,7 @@ local my_draw_callback_ref = nil
 local active = {}
 
 local function DrawSpectatorList()
+    if not speclist_on then return end
 	localplayer_index = client.GetLocalPlayerIndex()
 	player_name = client.GetPlayerNameByIndex(localplayer_index)
 	if not player_name then return end
@@ -542,8 +538,9 @@ local function RegisterCallbacks()
 
         print("Cleanup1 called in message2.lua")
 		watermark_tab:SetInvisible(true)
-		spec_check:SetInvisible(true)
+		spec_check:SetInvisible(true)
 		spec_color:SetInvisible(true)
+        speclist_on = false
 		fontvzkill = draw.CreateFont("Tahoma", 0, 5000)
     end
 
