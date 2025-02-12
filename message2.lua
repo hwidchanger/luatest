@@ -458,11 +458,7 @@ local function DrawSpectatorList()
 	localplayer_index = client.GetLocalPlayerIndex()
 	player_name = client.GetPlayerNameByIndex(localplayer_index)
 	if not player_name then return end
-
-	if not spec_check:GetValue() then
-        spectators, player = get_spectating_players()
-        return
-    end
+    if not spec_check:GetValue() then return end
 
     active = {}
 
@@ -531,6 +527,32 @@ end
         end
     end
 end
+
+local victoryCount = 0  -- Счётчик побед
+local dynamicVariable = 100  -- Произвольная переменная для изменения
+
+local function OnRoundEnd(event)
+    if event:GetName() ~= "round_end" then return end
+    
+    local localPlayer = entities.GetLocalPlayer()
+    if not localPlayer then return end
+    
+    -- Определение победившей команды (2 = Террористы, 3 = Спецназ)
+    local winningTeam = event:GetInt("winner")
+    local playerTeam = localPlayer:GetTeamNumber()
+    
+    if winningTeam == playerTeam then
+        victoryCount = victoryCount + 1
+        dynamicVariable = math.random(50, 150)  -- Изменение переменной
+        
+        -- Визуальное подтверждение (опционально)
+        client.ChatSay("Победа! Счёт: "..victoryCount)
+        print("Новое значение переменной: "..dynamicVariable)
+    end
+end
+
+client.AllowListener("round_end")
+callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 
 local function RegisterCallbacks()
         my_draw_callback_ref = callbacks.Register("Draw", DrawSpectatorList)
