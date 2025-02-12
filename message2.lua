@@ -459,7 +459,10 @@ local function DrawSpectatorList()
 	player_name = client.GetPlayerNameByIndex(localplayer_index)
 	if not player_name then return end
 
-	if not spec_check:GetValue() then return end
+	if not spec_check:GetValue() then
+        spectators, player = get_spectating_players()
+        return
+    end
 
     active = {}
 
