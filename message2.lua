@@ -454,14 +454,16 @@ local my_draw_callback_ref = nil
 local active = {}
 
 
-local victoryFlag = 0  -- Флаг победы (0/1)
-local roundCounter = 0  -- Счётчик раундов
+local victoryFlag = 0
+local roundCounter = 0
+local defeatFlag = 0
 
 -- Обработчик начала раунда
 local function OnRoundStart(event)
     if event:GetName() ~= "round_start" then return end
     
     victoryFlag = 0  -- Сброс флага при старте раунда
+    defeatFlag = 0
     roundCounter = roundCounter + 1
 end
 
@@ -478,6 +480,9 @@ local function OnRoundEnd(event)
     if winningTeam == playerTeam then
         victoryFlag = 1  -- Устанавливаем флаг при победе
         print("1"..victoryFlag)
+    else
+        defeatFlag = 1
+        print("2"..defeatFlag)
     end
 end
 
@@ -488,6 +493,7 @@ callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
 callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 
 local function DrawSpectatorList()
+    if defeatFlag == 1 then return end
     if victoryFlag == 1 then return end
     if not speclist_on then return end
 	localplayer_index = client.GetLocalPlayerIndex()
