@@ -453,7 +453,42 @@ local fontvzkill = draw.CreateFont("Tahoma", 11, 5000)
 local my_draw_callback_ref = nil
 local active = {}
 
+
+local victoryFlag = 0  -- Флаг победы (0/1)
+local roundCounter = 0  -- Счётчик раундов
+
+-- Обработчик начала раунда
+local function OnRoundStart(event)
+    if event:GetName() ~= "round_start" then return end
+    
+    victoryFlag = 0  -- Сброс флага при старте раунда
+    roundCounter = roundCounter + 1
+end
+
+-- Обработчик окончания раунда
+local function OnRoundEnd(event)
+    if event:GetName() ~= "round_end" then return end
+    
+    local localPlayer = entities.GetLocalPlayer()
+    if not localPlayer then return end
+    
+    local winningTeam = event:GetInt("winner")
+    local playerTeam = localPlayer:GetTeamNumber()
+    
+    if winningTeam == playerTeam then
+        victoryFlag = 1  -- Устанавливаем флаг при победе
+        print("1"..victoryFlag)
+    end
+end
+
+-- Регистрация обработчиков
+client.AllowListener("round_start")
+client.AllowListener("round_end")
+callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
+callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
+
 local function DrawSpectatorList()
+    if victoryFlag == 1 then return end
     if not speclist_on then return end
 	localplayer_index = client.GetLocalPlayerIndex()
 	player_name = client.GetPlayerNameByIndex(localplayer_index)
@@ -527,32 +562,6 @@ end
         end
     end
 end
-
-local victoryCount = 0  -- Счётчик побед
-local dynamicVariable = 100  -- Произвольная переменная для изменения
-
-local function OnRoundEnd(event)
-    if event:GetName() ~= "round_end" then return end
-    
-    local localPlayer = entities.GetLocalPlayer()
-    if not localPlayer then return end
-    
-    -- Определение победившей команды (2 = Террористы, 3 = Спецназ)
-    local winningTeam = event:GetInt("winner")
-    local playerTeam = localPlayer:GetTeamNumber()
-    
-    if winningTeam == playerTeam then
-        victoryCount = victoryCount + 1
-        dynamicVariable = math.random(50, 150)  -- Изменение переменной
-        
-        -- Визуальное подтверждение (опционально)
-        client.ChatSay("Победа! Счёт: "..victoryCount)
-        print("Новое значение переменной: "..dynamicVariable)
-    end
-end
-
-client.AllowListener("round_end")
-callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 
 local function RegisterCallbacks()
         my_draw_callback_ref = callbacks.Register("Draw", DrawSpectatorList)
