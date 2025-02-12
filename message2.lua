@@ -169,14 +169,6 @@ local table_new = require "table.new"
 ---@format disable-next
 local vtable_bind, vtable_thunk = (function()local a=(function()local b=ffi.typeof"void***"return function(c,d,e)return ffi.cast(e,ffi.cast(b,c)[0][d])end end)()local function f(c,d,e,...)local g=a(c,d,ffi.typeof(e,...))return function(...)return g(c,...)end end;local function h(d,e,...)e=ffi.typeof(e,...)return function(c,...)return a(c,d,e)(c,...)end end;return f,h end)()
 
-local function create_interface(module_name, interface_name)
-    local address = mem.FindPattern(module_name, "4C 8B 0D ?? ?? ?? ?? 4C 8B D2 4C 8B D9")
-    if not address then return nil end
-
-    local result = ffi.cast("void*(__cdecl*)(const char*, int*)", address)(interface_name, nil)
-    return result ~= nil and result or nil
-end
-
 local schema
 do
     ffi.cdef([[
