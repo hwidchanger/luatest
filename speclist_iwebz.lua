@@ -454,7 +454,7 @@ local roundCounter = 0
 local defeatFlag = 0
 local enemyTeam = 0
 local enemiesAlive = 0
-local voteFlag = 0  -- Новая переменная для отслеживания голосования
+local voteFlag = 0
 
 -- Обработчик начала раунда
 local function OnRoundStart(event)
@@ -462,7 +462,7 @@ local function OnRoundStart(event)
     
     victoryFlag = 0
     defeatFlag = 0
-    voteFlag = 0  -- Сброс при начале раунда
+    voteFlag = 0
     roundCounter = roundCounter + 1
     
     local localPlayer = entities.GetLocalPlayer()
@@ -471,14 +471,14 @@ local function OnRoundStart(event)
     end
 end
 
--- Обработчик голосования (новый)
+-- Обработчик голосования
 local function OnVoteStart(um)
     if um:GetID() == 46 then
         local localPlayer = entities.GetLocalPlayer()
         if not localPlayer then return end
         
-        votetype = um:GetInt(3)
-        votetarget = um:GetString(5)
+        local votetype = um:GetInt(3)
+        local votetarget = um:GetString(5)
         local localPlayerName = localPlayer:GetName()
         
         if votetype == 0 and votetarget == localPlayerName then
@@ -488,15 +488,15 @@ local function OnVoteStart(um)
     end
 end
 
--- Обработчик окончания голосования (новый)
+-- Обработчик окончания голосования
 local function OnVoteEnd(um)
     if um:GetID() == 47 or um:GetID() == 48 then
-        voteFlag = 0  -- Сброс при любом исходе голосования
+        voteFlag = 0
         print("[VOTE] Vote ended. Flag reset")
     end
 end
 
--- Обработчик смерти игрока
+-- Обработчик смерти игрока (ИСПРАВЛЕННАЯ ВЕРСИЯ)
 local function OnPlayerDeath(event)
     if event:GetName() ~= "player_death" then return end
     
@@ -504,7 +504,11 @@ local function OnPlayerDeath(event)
     if not localPlayer or victoryFlag == 1 then return end
     
     local victimTeam = event:GetInt("team")
-    local attacker = entities.GetByUserID(event:GetInt("attacker"))
+    local attackerID = event:GetInt("attacker")
+    
+    -- Новая реализация получения атакующего
+    local attackerIndex = client.GetPlayerIndexByUserID(attackerID)
+    local attacker = entities.GetByIndex(attackerIndex)
     
     if attacker == localPlayer and victimTeam == enemyTeam then
         enemiesAlive = 0
@@ -539,7 +543,6 @@ local function OnRoundEnd(event)
     end
 end
 
--- Регистрация обработчиков
 client.AllowListener("round_start")
 client.AllowListener("round_end")
 client.AllowListener("player_death")
@@ -548,8 +551,8 @@ client.AllowListener("vote_cast")
 callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
 callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 callbacks.Register("FireGameEvent", "PlayerDeathHandler", OnPlayerDeath)
-callbacks.Register("DispatchUserMessage", "VoteStartHandler", OnVoteStart)  -- Новая регистрация
-callbacks.Register("DispatchUserMessage", "VoteEndHandler", OnVoteEnd)      -- Новая регистрация
+callbacks.Register("DispatchUserMessage", "VoteStartHandler", OnVoteStart)
+callbacks.Register("DispatchUserMessage", "VoteEndHandler", OnVoteEnd)
 
 local font_header = draw.CreateFont('Tahoma', 15, 400, false, false, false, 0, 0, 0, false)
 local font_body = draw.CreateFont('Tahoma', 13, 5000, false, false, false, 0, 0, 0, false)
