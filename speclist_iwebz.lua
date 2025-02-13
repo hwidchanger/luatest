@@ -669,15 +669,18 @@ local function DrawSpectatorList()
                 local name = ent:GetPropString("m_iszPlayerName")
                 local speclist_text = name .. " >> " .. player_name
                 local Tw, Th = draw.GetTextSize(speclist_text)
+                local Tw2, Th2 = draw.GetTextSize(name)
                 
                 local x = screen_width - Tw - 10
                 local y = 10 + offset + offset2
+
+                local x2 = screen_width - Tw2 - 10
                 
                 draw.Color(lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2)
 				if check_name:GetValue() then
                     draw.TextShadow(x, y, speclist_text)
 				else
-				    draw.TextShadow(x, y, name)
+				    draw.TextShadow(x2, y, name)
                 end
                 
                 offset = offset + Th + 8
