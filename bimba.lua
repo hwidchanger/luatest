@@ -461,6 +461,7 @@ local function OnRoundStart(event)
     victoryFlag = 0  -- Сброс флага при старте раунда
     defeatFlag = 0
     roundCounter = roundCounter + 1
+    bombPlanted = 0
 end
 
 local function OnPlantBomb(event)
