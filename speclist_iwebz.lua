@@ -452,14 +452,74 @@ end
 local victoryFlag = 0
 local roundCounter = 0
 local defeatFlag = 0
+local enemyTeam = 0
+local enemiesAlive = 0
+local voteFlag = 0  -- Новая переменная для отслеживания голосования
 
 -- Обработчик начала раунда
 local function OnRoundStart(event)
     if event:GetName() ~= "round_start" then return end
     
-    victoryFlag = 0  -- Сброс флага при старте раунда
+    victoryFlag = 0
     defeatFlag = 0
+    voteFlag = 0  -- Сброс при начале раунда
     roundCounter = roundCounter + 1
+    
+    local localPlayer = entities.GetLocalPlayer()
+    if localPlayer then
+        enemyTeam = localPlayer:GetTeamNumber() == 3 and 2 or 3
+    end
+end
+
+-- Обработчик голосования (новый)
+local function OnVoteStart(um)
+    if um:GetID() == 46 then
+        local localPlayer = entities.GetLocalPlayer()
+        if not localPlayer then return end
+        
+        votetype = um:GetInt(3)
+        votetarget = um:GetString(5)
+        local localPlayerName = localPlayer:GetName()
+        
+        if votetype == 0 and votetarget == localPlayerName then
+            voteFlag = 1
+            print("[VOTE] Kick vote started against localplayer")
+        end
+    end
+end
+
+-- Обработчик окончания голосования (новый)
+local function OnVoteEnd(um)
+    if um:GetID() == 47 or um:GetID() == 48 then
+        voteFlag = 0  -- Сброс при любом исходе голосования
+        print("[VOTE] Vote ended. Flag reset")
+    end
+end
+
+-- Обработчик смерти игрока
+local function OnPlayerDeath(event)
+    if event:GetName() ~= "player_death" then return end
+    
+    local localPlayer = entities.GetLocalPlayer()
+    if not localPlayer or victoryFlag == 1 then return end
+    
+    local victimTeam = event:GetInt("team")
+    local attacker = entities.GetByUserID(event:GetInt("attacker"))
+    
+    if attacker == localPlayer and victimTeam == enemyTeam then
+        enemiesAlive = 0
+        
+        for _, player in ipairs(entities.FindByClass("CCSPlayer")) do
+            if player:GetTeamNumber() == enemyTeam and player:IsAlive() then
+                enemiesAlive = enemiesAlive + 1
+            end
+        end
+
+        if enemiesAlive == 0 then
+            victoryFlag = 1
+            print("[SUCCESS] Last enemy killed. Flag set to 1")
+        end
+    end
 end
 
 -- Обработчик окончания раунда
@@ -473,18 +533,23 @@ local function OnRoundEnd(event)
     local playerTeam = localPlayer:GetTeamNumber()
     
     if winningTeam == playerTeam then
-        victoryFlag = 1  -- Устанавливаем флаг при победе
-        print("1"..victoryFlag)
+        defeatFlag = 0
     else
         defeatFlag = 1
-        print("2"..defeatFlag)
     end
 end
 
+-- Регистрация обработчиков
 client.AllowListener("round_start")
 client.AllowListener("round_end")
+client.AllowListener("player_death")
+client.AllowListener("vote_cast")
+
 callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
 callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
+callbacks.Register("FireGameEvent", "PlayerDeathHandler", OnPlayerDeath)
+callbacks.Register("DispatchUserMessage", "VoteStartHandler", OnVoteStart)  -- Новая регистрация
+callbacks.Register("DispatchUserMessage", "VoteEndHandler", OnVoteEnd)      -- Новая регистрация
 
 local font_header = draw.CreateFont('Tahoma', 15, 400, false, false, false, 0, 0, 0, false)
 local font_body = draw.CreateFont('Tahoma', 13, 5000, false, false, false, 0, 0, 0, false)
@@ -546,6 +611,7 @@ local function draw_speclist_header(x, y)
 end
 
 local function draw_speclist_body(x, y)
+    if voteFlag == 1 then return end
     if spectype == 0 then return end
     if defeatFlag == 1 then return end
     if victoryFlag == 1 then return end
@@ -614,6 +680,7 @@ local function handle_mouse()
 end
 
 local function DrawSpectatorList()
+    if voteFlag == 1 then return end
     if spectype == 1 then return end
     if defeatFlag == 1 then return end
     if victoryFlag == 1 then return end
