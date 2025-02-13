@@ -459,29 +459,30 @@ local function OnPlayerDeath(event)
     if event:GetName() ~= "player_death" then return end
     
     local local_player = entities.GetLocalPlayer()
-    if not local_player or not local_player:IsPlayer() then return end
+    if not local_player or not local_player:IsValid() or not local_player:IsPlayer() then return end
 
-    -- Получаем информацию через UserID
+    -- Получаем индексы через UserID
     local victim_index = client.GetPlayerIndexByUserID(event:GetInt("userid"))
     local attacker_index = client.GetPlayerIndexByUserID(event:GetInt("attacker"))
     
-    -- Получаем сущности через индекс
+    -- Получаем сущность жертвы
     local victim_ent = entities.GetByIndex(victim_index)
-    if not victim_ent or victim_ent:GetTeamNumber() == local_player:GetTeamNumber() then return end
+    if not victim_ent or not victim_ent:IsValid() or victim_ent:GetTeamNumber() == local_player:GetTeamNumber() then return end
 
-    -- Подсчёт живых врагов через entities.GetPlayers()
+    -- Подсчёт живых врагов
     local enemies_alive = 0
-    local players = entities.GetPlayers()
-    for _, player in ipairs(players) do
-        if player:GetTeamNumber() ~= local_player:GetTeamNumber() 
-        and player:IsAlive()
-        and player:GetIndex() ~= victim_index then
-            enemies_alive = enemies_alive + 1
+    for i = 1, globals.MaxClients() do
+        local ent = entities.GetByIndex(i)
+        if ent and ent:IsValid() and ent:IsPlayer() then
+            if ent:GetTeamNumber() ~= local_player:GetTeamNumber() 
+            and ent:IsAlive()
+            and ent:GetIndex() ~= victim_index then
+                enemies_alive = enemies_alive + 1
+            end
         end
     end
 
     lastEnemyDeadFlag = enemies_alive == 0 and 1 or 0
-    print(lastEnemyDeadFlag)
 end
 
 local function OnVoteEvent(event)
@@ -497,13 +498,13 @@ end
 
 local function OnRoundEnd(event)
     local local_player = entities.GetLocalPlayer()
-    if not local_player or not local_player:IsPlayer() then return end
+    if not local_player or not local_player:IsValid() or not local_player:IsPlayer() then return end
     
     victoryFlag = (event:GetInt("winner") == local_player:GetTeamNumber()) and 1 or 0
     defeatFlag = 1 - victoryFlag
 end
 
--- Регистрация/очистка обработчиков
+-- Регистрация обработчиков с предварительной очисткой
 callbacks.Unregister("FireGameEvent", "DeathHandler")
 callbacks.Unregister("FireGameEvent", "VoteHandler")
 callbacks.Unregister("FireGameEvent", "RoundStartHandler")
@@ -543,6 +544,7 @@ local header_height = 19
 local entry_height = 23
 
 local function draw_speclist_header(x, y)
+    print("Enemies alive: "..enemies_alive.." | Last enemy flag: "..lastEnemyDeadFlag)
     if spectype == 0 then return end
     if not spec_check:GetValue() then return end
     if not speclist_on then return end
