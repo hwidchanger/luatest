@@ -520,9 +520,9 @@ local header_height = 19
 local entry_height = 23
 
 local function draw_speclist_header(x, y)
+    if spectype == 0 then return end
     if not spec_check:GetValue() then return end
     if not speclist_on then return end
-	lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
     if header_texture then
         local aspect_ratio = tex_h / tex_w
         local draw_height = header_width * aspect_ratio
@@ -545,12 +545,13 @@ local function draw_speclist_header(x, y)
     draw.Text(text_x - 1, text_y + 2, text)
     
 
-	
+	local lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
     draw.Color(lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2)
     draw.Text(text_x, text_y + 1, text)
 end
 
 local function draw_speclist_body(x, y)
+    if spectype == 0 then return end
     if defeatFlag == 1 then return end
     if victoryFlag == 1 then return end
     if not speclist_on then return end
@@ -592,6 +593,7 @@ end
 
 -- Замена неработающего метода
 local function handle_mouse()
+    if spectype == 0 then return end
     if not spec_check:GetValue() then return end
     if not speclist_on then return end
     local mouse_x, mouse_y = input.GetMousePos()
@@ -619,6 +621,7 @@ local function handle_mouse()
 end
 
 local function DrawSpectatorList()
+    if spectype == 1 then return end
     if defeatFlag == 1 then return end
     if victoryFlag == 1 then return end
     if not speclist_on then return end
