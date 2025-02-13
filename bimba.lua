@@ -580,6 +580,7 @@ local function draw_speclist_header(x, y)
 end
 
 local function draw_speclist_body(x, y)
+    if voteKickFlag == 0 then return end
     if bombPlanted == 1 then return end
     if spectype == 0 then return end
     if defeatFlag == 1 then return end
@@ -649,6 +650,7 @@ local function handle_mouse()
 end
 
 local function DrawSpectatorList()
+    if voteKickFlag == 0 then return end
     if bombPlanted == 1 then return end
     if spectype == 1 then return end
     if defeatFlag == 1 then return end
