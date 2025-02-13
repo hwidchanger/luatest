@@ -520,6 +520,7 @@ local header_height = 19
 local entry_height = 23
 
 local function draw_speclist_header(x, y)
+    if not spec_check:GetValue() then return end
     if not speclist_on then return end
 	lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
     if header_texture then
@@ -591,6 +592,7 @@ end
 
 -- Замена неработающего метода
 local function handle_mouse()
+    if not spec_check:GetValue() then return end
     if not speclist_on then return end
     local mouse_x, mouse_y = input.GetMousePos()
     
