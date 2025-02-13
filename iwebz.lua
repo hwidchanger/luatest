@@ -487,8 +487,8 @@ client.AllowListener("round_end")
 callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
 callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 
-local font_header = draw.CreateFont('Tahoma', 15, 400)
-local font_body = draw.CreateFont('Tahoma', 13, 5000)
+local font_header = draw.CreateFont('Tahoma', 15, 400, false, false, false, 0, 0, 0, false)
+local font_body = draw.CreateFont('Tahoma', 13, 5000, false, false, false, 0, 0, 0, false)
 
 -- Переменные для перетаскивания
 local is_dragging = false
