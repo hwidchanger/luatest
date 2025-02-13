@@ -452,50 +452,44 @@ end
 local victoryFlag = 0
 local roundCounter = 0
 local defeatFlag = 0
-local lastEnemyDeadFlag = 0  -- Флаг смерти последнего врага
-local voteStartFlag = 0      -- Флаг начала голосования
+local lastEnemyDeadFlag = 0
+local voteStartFlag = 0
 
--- Обработчик смерти игрока
 local function OnPlayerDeath(event)
-    if event:GetName() == "player_death" then
-        local localPlayer = entities.GetLocalPlayer()
-        if not localPlayer then return end
-        
-        -- Получаем информацию через UserID как в оригинальном KillSay
-        local victimIndex = client.GetPlayerIndexByUserID(event:GetInt("userid"))
-        local attackerIndex = client.GetPlayerIndexByUserID(event:GetInt("attacker"))
-        
-        -- Проверяем что жертва из вражеской команды
-        if entities.GetByIndex(victimIndex):GetTeamNumber() == localPlayer:GetTeamNumber() then return end
-        
-        -- Проверка на последнего врага
-        local enemiesAlive = 0
-        for i = 1, globals.MaxClients() do
-            local ent = entities.GetByIndex(i)
-            if ent and ent:IsPlayer() then
-                if ent:GetTeamNumber() ~= localPlayer:GetTeamNumber() 
-                and ent:IsAlive() 
-                and ent:GetIndex() ~= victimIndex then
-                    enemiesAlive = enemiesAlive + 1
-                end
-            end
+    if event:GetName() ~= "player_death" then return end
+    
+    local local_player = entities.GetLocalPlayer()
+    if not local_player then return end
+
+    -- Получаем userid напрямую из события
+    local victim_userid = event:GetInt("userid")
+    local attacker_userid = event:GetInt("attacker")
+    
+    -- Конвертируем userid в player index
+    local victim_index = client.GetPlayerIndexByUserID(victim_userid)
+    local attacker_index = client.GetPlayerIndexByUserID(attacker_userid)
+    
+    -- Получаем entity через индекс
+    local victim_ent = entities.GetByIndex(victim_index)
+    if not victim_ent or victim_ent:GetTeamNumber() == local_player:GetTeamNumber() then return end
+
+    -- Подсчёт живых врагов
+    local enemies_alive = 0
+    local players = entities.FindByClass("CCSPlayerController")
+    for _, player in pairs(players) do
+        if player:GetTeamNumber() ~= local_player:GetTeamNumber() and player:IsAlive() then
+            enemies_alive = enemies_alive + 1
         end
-        
-        lastEnemyDeadFlag = enemiesAlive == 0 and 1 or 0
     end
+    
+    lastEnemyDeadFlag = enemies_alive == 0 and 1 or 0
 end
 
--- Обработчики событий голосования
 local function OnVoteEvent(event)
-    local eventName = event:GetName()
-    if eventName == "vote_started" then
-        voteStartFlag = 1
-    elseif eventName == "vote_ended" then
-        voteStartFlag = 0
-    end
+    local event_name = event:GetName()
+    voteStartFlag = (event_name == "vote_started") and 1 or 0
 end
 
--- Обработчики раундов
 local function OnRoundStart(event)
     victoryFlag = 0
     defeatFlag = 0
@@ -504,25 +498,24 @@ local function OnRoundStart(event)
 end
 
 local function OnRoundEnd(event)
-    local localPlayer = entities.GetLocalPlayer()
-    if not localPlayer then return end
+    local local_player = entities.GetLocalPlayer()
+    if not local_player then return end
     
-    local winningTeam = event:GetInt("winner")
-    victoryFlag = winningTeam == localPlayer:GetTeamNumber() and 1 or 0
-    defeatFlag = victoryFlag == 1 and 0 or 1
+    local winning_team = event:GetInt("winner")
+    victoryFlag = (winning_team == local_player:GetTeamNumber()) and 1 or 0
+    defeatFlag = 1 - victoryFlag
 end
 
--- Регистрация обработчиков
-client.AllowListener("round_start")
-client.AllowListener("round_end")
-client.AllowListener("player_death")
-client.AllowListener("vote_started")
-client.AllowListener("vote_ended")
+-- Регистрация обработчиков событий
+callbacks.Unregister("FireGameEvent", "DeathHandler")
+callbacks.Unregister("FireGameEvent", "VoteHandler")
+callbacks.Unregister("FireGameEvent", "RoundStartHandler")
+callbacks.Unregister("FireGameEvent", "RoundEndHandler")
 
-callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
-callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 callbacks.Register("FireGameEvent", "DeathHandler", OnPlayerDeath)
 callbacks.Register("FireGameEvent", "VoteHandler", OnVoteEvent)
+callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
+callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 
 local font_header = draw.CreateFont('Tahoma', 15, 400, false, false, false, 0, 0, 0, false)
 local font_body = draw.CreateFont('Tahoma', 13, 5000, false, false, false, 0, 0, 0, false)
