@@ -551,6 +551,8 @@ local header_height = 19
 local entry_height = 23
 
 local function draw_speclist_header(x, y)
+    if bombPlanted = 0 then return end
+    if voteFlag = 0 then return end
     if spectype == 0 then return end
     if not spec_check:GetValue() then return end
     if not speclist_on then return end
@@ -650,6 +652,8 @@ local function handle_mouse()
 end
 
 local function DrawSpectatorList()
+    if bombPlanted = 0 then return end
+    if voteFlag = 0 then return end
     if spectype == 1 then return end
     if defeatFlag == 1 then return end
     if victoryFlag == 1 then return end
