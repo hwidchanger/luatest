@@ -710,9 +710,6 @@ local function RegisterCallbacks()
 		my_draw_callback_ref4 = callbacks.Register("Draw", draw_speclist_body)
         return {
             { name = "Draw", reference = my_draw_callback_ref }
-			{ name = "Draw", reference = my_draw_callback_ref2 }
-			{ name = "Draw", reference = my_draw_callback_ref3 }
-			{ name = "Draw", reference = my_draw_callback_ref4 }
         }
     end
 
