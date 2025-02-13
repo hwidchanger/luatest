@@ -452,6 +452,7 @@ end
 local victoryFlag = 0
 local roundCounter = 0
 local defeatFlag = 0
+local voteKickFlag = 0
 
 -- Обработчик начала раунда
 local function OnRoundStart(event)
@@ -466,6 +467,27 @@ local function OnPlantBomb(event)
     if event:GetName() == "bomb_planted" then
         bombPlanted = 1
     end
+end
+
+local function OnVoteStart(event)
+    if event:GetName() ~= "vote_started" then return end
+    
+    local localPlayer = entities.GetLocalPlayer()
+    if not localPlayer then return end
+    
+    -- Проверяем тип голосования и цель
+    if event:GetString("type") == "kick" and 
+       event:GetString("victim") == tostring(localPlayer:GetSteamID()) then
+        voteKickFlag = 1
+        print("Начато голосование за кик игрока")
+    end
+end
+
+-- Обработчик завершения голосования
+local function OnVoteEnd(event)
+    if event:GetName() ~= "vote_ended" then return end
+    voteKickFlag = 0
+    print("Голосование завершено")
 end
 
 -- Обработчик окончания раунда
@@ -490,9 +512,13 @@ end
 client.AllowListener("bomb_planted")
 client.AllowListener("round_start")
 client.AllowListener("round_end")
+client.AllowListener("vote_started")
+client.AllowListener("vote_ended")
 callbacks.Register("FireGameEvent", "RoundStartHandler", OnRoundStart)
 callbacks.Register("FireGameEvent", "RoundEndHandler", OnRoundEnd)
 callbacks.Register("FireGameEvent", "BombPlantHandler", OnPlantBomb)
+callbacks.Register("FireGameEvent", "VoteStartHandler", OnVoteStart)
+callbacks.Register("FireGameEvent", "VoteEndHandler", OnVoteEnd)
 
 local font_header = draw.CreateFont('Tahoma', 15, 400, false, false, false, 0, 0, 0, false)
 local font_body = draw.CreateFont('Tahoma', 13, 5000, false, false, false, 0, 0, 0, false)
