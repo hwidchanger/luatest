@@ -461,30 +461,31 @@ local function OnPlayerDeath(event)
         local localPlayer = entities.GetLocalPlayer()
         if not localPlayer then return end
         
-        -- Получаем информацию о командах через engine API
-        local victimIndex = engine.GetPlayerForUserID(event:GetInt("userid"))
-        local victim = entities.GetByIndex(victimIndex)
+        -- Получаем информацию через UserID как в оригинальном KillSay
+        local victimIndex = client.GetPlayerIndexByUserID(event:GetInt("userid"))
+        local attackerIndex = client.GetPlayerIndexByUserID(event:GetInt("attacker"))
         
         -- Проверяем что жертва из вражеской команды
-        if victim:GetTeamNumber() == localPlayer:GetTeamNumber() then return end
+        if entities.GetByIndex(victimIndex):GetTeamNumber() == localPlayer:GetTeamNumber() then return end
         
         -- Проверка на последнего врага
         local enemiesAlive = 0
         for i = 1, globals.MaxClients() do
             local ent = entities.GetByIndex(i)
-            if ent and ent:IsPlayer() and ent:GetIndex() ~= victimIndex then
-                if ent:GetTeamNumber() ~= localPlayer:GetTeamNumber() and ent:IsAlive() then
+            if ent and ent:IsPlayer() then
+                if ent:GetTeamNumber() ~= localPlayer:GetTeamNumber() 
+                and ent:IsAlive() 
+                and ent:GetIndex() ~= victimIndex then
                     enemiesAlive = enemiesAlive + 1
                 end
             end
         end
         
-        -- Установка флага если врагов не осталось
         lastEnemyDeadFlag = enemiesAlive == 0 and 1 or 0
     end
 end
 
--- Обработчик голосования
+-- Обработчики событий голосования
 local function OnVoteEvent(event)
     local eventName = event:GetName()
     if eventName == "vote_started" then
@@ -494,7 +495,7 @@ local function OnVoteEvent(event)
     end
 end
 
--- Обработчики раундов (без изменений)
+-- Обработчики раундов
 local function OnRoundStart(event)
     victoryFlag = 0
     defeatFlag = 0
