@@ -618,9 +618,78 @@ local function handle_mouse()
     end
 end
 
+local function DrawSpectatorList()
+    if defeatFlag == 1 then return end
+    if victoryFlag == 1 then return end
+    if not speclist_on then return end
+    local localplayer_index = client.GetLocalPlayerIndex()
+    local player_name = client.GetPlayerNameByIndex(localplayer_index)
+    if not player_name then return end
+    if not spec_check:GetValue() then return end
+
+    local active = {}
+    local spectators, player = get_spectating_players()
+    local screen_width, screen_height = draw.GetScreenSize()
+    local maxplayers = globals.MaxClients()
+    local lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2 = spec_color:GetValue()
+    
+    local offset2 = 0
+    if ui_check77:GetValue() and startX > 1740 and startY < 30 then
+        offset2 = 35
+    else
+        offset2 = 0
+    end
+
+    local frametime = globals.FrameTime()
+    for i = 1, maxplayers do
+        if not active[i] then
+            table.insert(active, i, {
+                alpha = 0,
+                active = false
+            })
+        end
+    end
+
+    for i = 1, maxplayers do
+        if active[i].active then
+            active[i].active = false
+        end
+    end
+
+    local actives = 0
+    for _, idx in ipairs(spectators[player] or {}) do
+        active[idx].active = true
+        actives = actives + 1
+    end
+
+    local offset = 0
+    for i = #active, 1, -1 do
+        local value = active[i]
+        value.alpha = value.active and 1 or 0
+
+        if value.alpha > 0 then
+            local ent = entities.GetByIndex(i)
+            if ent then
+                local name = ent:GetPropString("m_iszPlayerName")
+                local speclist_text = name .. " >> " .. player_name
+                local Tw, Th = draw.GetTextSize(speclist_text)
+                
+                local x = screen_width - Tw - 10
+                local y = 10 + offset + offset2
+                
+                draw.Color(lua_damage_color_r2, lua_damage_color_g2, lua_damage_color_b2, lua_damage_color_z2)
+                draw.TextShadow(x, y, speclist_text)
+                
+                offset = offset + Th + 8
+            end
+        end
+    end
+end
+
 local function RegisterCallbacks()
         callbacks.Register('Draw', function()
             handle_mouse()
+            DrawSpectatorList()
             draw_speclist_header(window_x, window_y)
             draw_speclist_body(window_x, window_y)
         end)
